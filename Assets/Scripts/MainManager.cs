@@ -12,6 +12,7 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text hsText;
     
     private bool m_Started = false;
     private int m_Points;
@@ -36,6 +37,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        PersManager.Instance.LoadScore();
+        UpdateScoreText();
+        ScoreText.text = PersManager.Instance.playerName + "'s score: " + m_Points;
     }
 
     private void Update()
@@ -60,17 +64,36 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("Menu");
+        }
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        //ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = PersManager.Instance.playerName + "'s score: " + m_Points;
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        PersManager.Instance.score = m_Points;
+        if (PersManager.Instance.score > PersManager.Instance.prevScore)
+        {
+            PersManager.Instance.SaveScore();
+            PersManager.Instance.LoadScore();
+            UpdateScoreText();
+        }
+    }
+    public void UpdateScoreText()
+    {
+        if (PersManager.Instance.prevName != "")
+        {
+            hsText.text = "Best score: " + PersManager.Instance.prevName + " with " + PersManager.Instance.prevScore + " points.";
+        }
     }
 }
